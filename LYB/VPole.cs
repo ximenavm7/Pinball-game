@@ -45,7 +45,7 @@ namespace LYB
             this.a = a;
             this.b = b;
             stiffness   = 2.5f;
-            damp        = 0.5f;
+            damp        = 10f;
             length      = a.Pos.Distance(b.Pos);
             brush       = new Pen(Color.Green);
             tot         = a.Mass + b.Mass;

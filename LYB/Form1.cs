@@ -1,5 +1,4 @@
-﻿using LYB.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,11 +18,17 @@ namespace LYB
         VSolver solver;
         Point mouse, trigger;
         bool isMouseDown,isRightButton;
-        int ballId, angle;
+        int ballId;
 
         public Form1()
         {
             InitializeComponent();
+
+        }
+
+        private void ExitVBox_Collided(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void Init()
@@ -31,36 +36,69 @@ namespace LYB
             Random rand = new Random();
             canvas              = new Canvas(PCT_CANVAS.Size);
             PCT_CANVAS.Image    = canvas.bmp;
-            balls               = new List<VPoint>();
+            balls              = new List<VPoint>();
             boxes               = new List<VBox>();
             solver              = new VSolver(balls);
-            angle = 0;
             
-            /*            
-            rope = new VRope(450, 400, 15, 25, balls.Count);
-            balls.AddRange(rope.pts);//*/// hay que añadir las pelotas de cada cuerpo a la lista para ser tratadas
-
-
             
-            for (int i = 0; i < 15; i++)
-                balls.Add(new VPoint(rand.Next(450,820), rand.Next(20, 550), balls.Count, true));//*/
+            ExitVBox  exitVBox = new ExitVBox(10, 400, 10, 1000, balls.Count);
 
-            canvas.DrawMap(Mapas.map2, balls, boxes); // Dibujar el mapa
-            balls.Add(new VPoint(870, 570, balls.Count));
+            exitVBox.Collided += ExitVBox_Collided;
+            boxes.Add(exitVBox);
+
+            balls.Add(exitVBox.a);
+            balls.Add(exitVBox.b);
+            balls.Add(exitVBox.c);
+            balls.Add(exitVBox.d);
+
+            //***********Ropes
+            /*
+            rope = new VRope(450, 400, 15, 26, balls.Count);
+            balls.AddRange(rope.pts);// hay que añadir las pelotas de cada cuerpo a la lista para ser tratadas
+            */
+
+            for (int i = 0; i < 1; i++)
+                balls.Add(new VPoint(rand.Next(PCT_CANVAS.Width), rand.Next(PCT_CANVAS.Height), balls.Count));
+
+
+            //**************STOMPERS 
+            /*
+            
+            for (int b = 0; b < 50; b++)//stompers265
+                balls.Add(new VPoint(0 + (b * 15), (int)(Height * .2f + b * 2), balls.Count, true));
+            */
 
             /*
-            for (int b = 0; b < 25; b++)//stompers265
-                balls.Add(new VPoint(0 + (b * 15), (int)(Height * .2f + b * 2), balls.Count, true));
+            for (int b = 0; b < 50; b++)//stompers265
+                balls.Add(new VPoint(0 + (b * 15), 400, balls.Count, true));
+            */
 
-            for (int b = 0; b < 25; b++)//stompers265
-                balls.Add(new VPoint(800 + (b * 15), (int)(Height * .5f - b * 6), balls.Count, true));
-            //*/
+
+
+
+            ///////*************CAJAS/*
+
+
+            //TOP
+            /*
+            boxes.Add(new VBox(0, 300,1000, 10, balls.Count));
+            balls.Add(boxes[boxes.Count - 1].a);
+            balls.Add(boxes[boxes.Count - 1].b);
+            balls.Add(boxes[boxes.Count - 1].c);
+            balls.Add(boxes[boxes.Count - 1].d);
+            */
+
+           
+
+
+
+
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             Init();
-            this.BackgroundImage = Resource1.space;
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -128,7 +166,7 @@ namespace LYB
         }
         private void TIMER_Tick(object sender, EventArgs e)
         {
-            canvas.LessFast(balls);
+            canvas.LessFast();
 
             ballId = solver.Update(canvas.g, canvas.Width, canvas.Height, mouse, isMouseDown);
       

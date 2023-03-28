@@ -10,13 +10,14 @@ namespace LYB
     {
         bool isPinned = false;
         bool fromBody = false;       
-        Vec2 pos, old, vel, gravity, maxVel;
+        Vec2 pos, old, vel, gravity;
         int id;
         public float Mass;
-        float radius, bounce, diameter, m, frict = .99f;
+        float radius, bounce, diameter, m, frict = 0.99f;
         float groundFriction = 0.7f;
         Color c;
         SolidBrush brush;
+        private float maxSpeed = float.MaxValue;
 
         public bool FromBody
         {
@@ -28,6 +29,13 @@ namespace LYB
             get { return diameter; }
             set { diameter = value; }
         }
+
+        public float MaxSpeed
+        {
+            get { return maxSpeed; }
+            set { maxSpeed = Math.Max(0, value); }
+        }
+
         public int Id
         {
             get { return id; }
@@ -75,7 +83,6 @@ namespace LYB
             isPinned = Pinned;
             Init(x, y, 0, 0);
         }
-
         public VPoint(int x, int y, int id)
         {
             this.id = id;
@@ -97,15 +104,14 @@ namespace LYB
         private void Init(int x, int y, float vx, float vy)
         {
             pos         = new Vec2(x, y);
-            old         = new Vec2(x, y);
-            gravity     = new Vec2(0, .8);//
+            old         = new Vec2(x , y );
+            gravity     = new Vec2(0, 1);
             vel         = new Vec2(vx, vy);
-            maxVel      = new Vec2(20, 20);
-            radius      = 10;
+            radius      = 20;
             diameter    = radius + radius;
             Mass        = 1f;
-            bounce      = 1f;
-            c = Color.Violet;
+            bounce      = 0.1f;
+            c = Color.Green;
             brush = new SolidBrush(c);
             if (IsPinned)
             {
@@ -127,23 +133,30 @@ namespace LYB
             if (isPinned)
                 return;//*/
 
+
             vel = (pos - old) *  frict;
+
+             
+            /*
+            if (pos.Y >= height - radius && vel.MagSqr() > 0.000001)//en el piso
+            {
+                m   = vel.Length();
+                vel /= m;
+                vel *= (m * groundFriction);
+            }//*/
+
+
 
             old = pos;
             pos += vel + gravity;
-
-            if (vel.Length() > maxVel.Length())
-            {
-                vel = vel.Normalize() * maxVel.Length();
-            }
         }
 
         public void Constraints(int width, int height)
         {
             if (pos.X > width - radius)     { pos.X = width - radius;   old.X = (pos.X + vel.X); }
-            if (pos.X < radius)             { pos.X = radius;           old.X = (pos.X + vel.X); }
-            if (pos.Y > height - radius)    { pos.Y = height - radius;  old.Y = (pos.Y + vel.Y); }
-            if (pos.Y < radius)             { pos.Y = radius;           old.Y = (pos.Y + vel.Y); }
+            if (pos.X < radius)             { pos.X = radius;           old.X = (pos.X + vel.X) ; }
+            if (pos.Y > height - radius)    { pos.Y = height - radius;  old.Y = (pos.Y + vel.Y) ; }
+            if (pos.Y < radius)             { pos.Y = radius;           old.Y = (pos.Y + vel.Y) ; }
         }
 
         public void Render(Graphics g, int width, int height)

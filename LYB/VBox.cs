@@ -21,7 +21,6 @@ namespace LYB
         Pen alarm = new Pen(Color.Red, 10);
         static Random rand = new Random();
         public VPoint a, b, c, d;
-        public VPoint new_a, new_b, new_c, new_d;
         VPole p1, p2, p3, p4, p5, p6;
         List<PointF> dPts;
 
@@ -29,12 +28,11 @@ namespace LYB
         {
             this.width = width;
             this.height = height;
-
             this.id = id;
             pos = new Vec2(x, y);
 
-            a = new VPoint(x - (width / 2), y - (height / 2)/*, rand.Next( 5), rand.Next(-2, 2)*/, id, true);
-            b = new VPoint(x + (width / 2), y - (height / 2), id +1, true);
+            a = new VPoint(x - (width / 2), y - (height / 2), rand.Next( 5), rand.Next(-2, 2), id, true);
+            b = new VPoint(x + (width / 2), y - (height / 2), id +1,true);
             c = new VPoint(x + (width / 2), y + (height / 2), id +2, true);
             d = new VPoint(x - (width / 2), y + (height / 2), id +3, true);
 
@@ -43,26 +41,7 @@ namespace LYB
             c.FromBody = true;
             d.FromBody = true;
 
-            Init(a, b, c, d);
-        }
-
-        public VBox(int x, int y, int width, int height, int id, bool flipper)
-        {
-            this.width = width;
-            this.height = height;
-
-            this.id = id;
-            pos = new Vec2(x, y);
-
-            a = new VPoint(x - (width / 2), y - (height / 2) + 20/*, rand.Next( 5), rand.Next(-2, 2)*/, id, true);
-            b = new VPoint(x + (width / 2), y - (height / 2), id + 1, true);
-            c = new VPoint(x + (width / 2), y + (height / 2), id + 2, true);
-            d = new VPoint(x - (width / 2), y + (height / 2) + 20, id + 3, true);
-
-            a.FromBody = true;
-            b.FromBody = true;
-            c.FromBody = true;
-            d.FromBody = true;
+            brush = new SolidBrush( Color.FromArgb(0, 65, 255));
 
             Init(a, b, c, d);
         }
@@ -83,7 +62,7 @@ namespace LYB
             p5 = new VPole(b, d);
             p6 = new VPole(c, a);
 
-            c1 = Color.FromArgb(201, 134, 235);//FromArgb(rand.Next(128, 256), rand.Next(128, 256), rand.Next(128, 256));
+            c1 = Color.FromArgb(rand.Next(128, 256), rand.Next(128, 256), rand.Next(128, 256));
             brush = new SolidBrush(c1);
 
             color = Color.FromArgb(c1.R - 50, c1.G - 50, c1.B - 50);
@@ -136,7 +115,7 @@ namespace LYB
             maxY = Math.Max(Math.Max(pts[0].Y, pts[1].Y), Math.Max(pts[2].Y, pts[3].Y));
         }
 
-        public void React(Graphics g, List<VPoint> pts,int width, int height)//----------------
+        public virtual void React(Graphics g, List<VPoint> pts,int width, int height)//----------------
         {
             Render(g, width, height);
             
@@ -144,19 +123,19 @@ namespace LYB
                 React(g, pts[p]);//*/
         }
 
-        private bool React(Graphics g, VPoint p)//--------------------------
+        protected bool React(Graphics g, VPoint p)//--------------------------
         {
             if (p == null || p.FromBody)
                 return false;
 
             //g.DrawRectangle(Pens.Blue, mX, mY, Mx - mX, My - mY);//check for collision
-           
-            EdgeCollision(g, p);
 
-            return false;
+            bool isCollided = EdgeCollision(g, p);
+
+            return isCollided;
         }        
 
-        public void EdgeCollision(Graphics g, VPoint p)//---------------------------------
+        public bool EdgeCollision(Graphics g, VPoint p)//---------------------------------
         {
             int index;
             float distace, tmp;
@@ -192,6 +171,7 @@ namespace LYB
                     index = point;
                 }
             }
+            bool isCollided = false;
 
             if (distace < p.Radius + 3)
             {
@@ -204,7 +184,10 @@ namespace LYB
                     p.Pos = p.Old + .000001f;
                     p.Old = temp - 1.5f;
                 }
+
+                isCollided = true;
             }
+            return isCollided;
         }
 
         private void FindIntersections(VPole pole, Vec2 p)//--------------------------

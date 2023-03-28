@@ -71,20 +71,19 @@ namespace LYB
             return (float)Math.Sqrt(Math.Pow(X - a.X, 2) + Math.Pow(Y - a.Y, 2));
         }
 
-        public Vec2 Normalize()
-        {
-            float magnitude = (float)Math.Sqrt(X * X + Y * Y);
-            if (magnitude > 0)
-            {
-                X /= magnitude;
-                Y /= magnitude;
-            }
-            return new Vec2(X, Y);
-        }
-
         public override string ToString()
         {
             return X + " : " + Y;
+        }
+
+        public Vec2 Normalize()
+        {
+            float len = Length();
+            if (len > 0)
+            {
+                return this / len;
+            }
+            return new Vec2(0, 0);
         }
     }
 }
